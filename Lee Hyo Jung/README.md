@@ -1,4 +1,4 @@
-![image.png](attachment:068a50c2-7c07-4413-9146-cb89ef10d0ee:image.png)
+<img width="800" height="397" alt="image" src="https://github.com/user-attachments/assets/20bb414f-bd06-4380-bfe3-f8846782f73c" />
 
 1. Git에서 Travis CI에 소스를 제공합니다
 2. Travis CI는 소스를 받아 빌드하고 빌드 결과물을 AWS S3에 저장합니다
