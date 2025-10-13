@@ -1,6 +1,5 @@
 <img width="1407" height="872" alt="image" src="https://github.com/user-attachments/assets/3a936042-3910-4b47-a5ce-0c8b391a0924" />
 
-아키텍처 출처 : https://www.park108.net/log/1645454698275
 
 
 전반적인 흐름 : 개발자가 Github에 코드 푸시 → Github Actions가 빌드 → Docker 이미지를 레지스트리에 올림 → AWS Fargate에 자동 배포
@@ -40,6 +39,8 @@ AWS Cloud 내부의 Virtual Private Cloud (VPC) : AWS 내부 네트워크 공간
 AWS Fargate
 컨테이너화된 애플리케이션을 실행하고 관리하는 서비스로, 로드 테스트를 위한 가상 사용자를 생성하고 관리한다.
 GitHub Actions가 배포 시점에 AWS Fargate에게 “새 이미지로 컨테이너를 실행하라”고 명령한다.
+
+아키텍처 출처 : https://www.park108.net/log/1645454698275
 AWS Fargate는 Container Registry에서 새 이미지를 pull 해서 실행한다.
 
 서비스들 (organization service, customer service, salesOrder service)
