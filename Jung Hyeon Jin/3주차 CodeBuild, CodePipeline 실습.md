@@ -37,31 +37,31 @@ CodeBuild 생성
 
 
 CodeBuild 결과 로그
-image
-image
+<img width="1671" height="422" alt="image" src="https://github.com/user-attachments/assets/021b2267-97a6-4e0e-990d-c8f41026c013" />
+<img width="928" height="198" alt="image" src="https://github.com/user-attachments/assets/b7eb2666-bd39-434d-8220-e6706630d9b7" />
+
+
 
 파이프라인 생성
-
-파이프라인 생성하여 빌드 및 배포 과정
 최소한의 권한을 가진 사용자 계정에 로그인한다
-최소한의 권한
 
-AWS CodePipeline 콘솔에 들어간다
-AWS Region selctor에서 빌드 프로젝트에 있는 AWS 리소스를 선택한다
-CodePipeline과 CodeBuild region을 같도록 한다
+AWS CodePipeline 콘솔에 들어간다.
+AWS Region selctor에서 빌드 프로젝트에 있는 AWS 리소스를 선택한다.
+CodePipeline과 CodeBuild region을 같도록 한다.
 
-파이프라인 생성을 눌러 파이프라인을 만든다
-image
+파이프라인 생성을 눌러 파이프라인을 만든다.
+<img width="1456" height="333" alt="image" src="https://github.com/user-attachments/assets/9ad8adb6-8d0e-4eac-b2e7-ba98f14c1ec6" />
+
 
 Category 선택 파이프라인의 목적
-
-Deployment CD 소스 코드를 빌드하고 컨테이너 이미지화 하여 클라우드 환경에 실제 애플리케이션을 실행
-Continuous Integration CI 코드 변경 사항을 지속적으로 빌드 테스트 통합
-Automation 자동화 반복적인 작업이나 인프라 관리 등을 자동화
-사용자 지정 파이프라인 빌드 위 카테고리에 속하지 않는 특정 조건에 맞춘 파이프라인의 모든 단계를 사용자에 맞게 구성
+  Deployment CD 소스 코드를 빌드하고 컨테이너 이미지화 하여 클라우드 환경에 실제 애플리케이션을 실행
+  Continuous Integration CI 코드 변경 사항을 지속적으로 빌드 테스트 통합
+  Automation 자동화 반복적인 작업이나 인프라 관리 등을 자동화
+  사용자 지정 파이프라인 빌드 위 카테고리에 속하지 않는 특정 조건에 맞춘 파이프라인의 모든 단계를 사용자에 맞게 구성
 
 테스트를 위해 사용자 지정 파이프라인 빌드를 선택하였다
-image
+<img width="1334" height="1036" alt="image" src="https://github.com/user-attachments/assets/91a3ef4d-36bc-4344-b916-6c281e358c51" />
+
 
 파이프라인 이름을 설정한다
 Role 이름을 설정한다
