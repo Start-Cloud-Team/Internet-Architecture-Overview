@@ -33,6 +33,8 @@ AWS CodePipeline
 사용자 지정 시스템 통합 - AWS CodePipeline 오픈 소스 에이전트를 사용자의 서버와 통합하여 사용자 지정 작업을 등록하고 파이프라인에 서버를 연결한다.
 
 CodeBuild 생성
+<img width="1212" height="942" alt="image" src="https://github.com/user-attachments/assets/ceae909f-4ed1-42e5-88d7-b2fb23c13c70" />
+
 
 CodeBuild 결과 로그
 image
