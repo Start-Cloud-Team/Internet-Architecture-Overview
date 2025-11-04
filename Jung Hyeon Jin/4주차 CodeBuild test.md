@@ -16,5 +16,5 @@ yml 파일에 사용하는 환경 변수 추가
 
 <br />
 빌드 결과
-![image.png](attachment:9bba2a5c-e1f7-4804-abb8-1b1396354bdf:image.png)
+<img width="1155" height="764" alt="image" src="https://github.com/user-attachments/assets/f8813c18-426d-4905-aa85-9ec30872e077" />
 ![image.png](attachment:64de343d-76d1-4363-945d-44199e5624f4:image.png)
