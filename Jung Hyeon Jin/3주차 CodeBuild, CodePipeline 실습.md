@@ -57,7 +57,7 @@ AWS CodePipeline?
 
 필요에 맞게 조정 - 릴리스 프로세스의 모든 단계에서 자체 플러그인 또는 사전 구축된 플러그인을 사용할 수 있다.
 
-
+<br />
 
 사용 사례
 
@@ -68,8 +68,8 @@ AWS CodePipeline?
 엑세스 제어 및 권한 부여 - AWS Identity and Access Management(IAM)를 사용하여 릴리스 워크플로를 변경하고 제어할 수 있는 사람을 관리한다.
 
 사용자 지정 시스템 통합 - AWS CodePipeline 오픈 소스 에이전트를 사용자의 서버와 통합하여 사용자 지정 작업을 등록하고 파이프라인에 서버를 연결한다.
-
-
+<br /><br />
+<br />
 
 
 CodeBuild 생성
@@ -80,7 +80,7 @@ CodeBuild 결과 로그
 <img width="928" height="198" alt="image" src="https://github.com/user-attachments/assets/db27ac7a-bc30-4a84-b043-77bc1da4f64b" />
 
 
-
+<br /><br /><br />
 파이프라인 생성
 
 1. AWS CodePipeline 콘솔에 들어간다.
