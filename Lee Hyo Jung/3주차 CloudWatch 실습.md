@@ -1,69 +1,75 @@
-📘 Amazon CloudWatch 서비스 기능 및 실습 정리
+# **📘 Amazon CloudWatch 서비스 기능 및 실습 정리**
 
-🧩 1. CloudWatch 개요
+## **🧩 1. CloudWatch 개요**
 
-Amazon CloudWatch는 AWS 리소스(EC2, RDS 등)와 애플리케이션에서 발생하는 로그, 지표(Metrics), 이벤트를 실시간으로 모니터링하고,
+**Amazon CloudWatch**는 AWS 리소스(EC2, RDS 등)와 애플리케이션에서 발생하는 로그, 지표(Metrics), 이벤트를 실시간으로 모니터링하고,
 
 이상 상태가 감지되면 경보(Alarm)를 통해 알림을 보내는 서비스입니다.
 
-<br /><br />
-
-⚙️ 2. 실습 목표
-
-- EC2 인스턴스의 CPU 사용률이 60%를 초과하면 이메일로 알림을 받는 경보(Alarm) 생성<br />
-- CloudWatch Agent를 통해 **EC2 내부 지표(메모리, 디스크 등)** 도 수집<br />
-- SNS(Simple Notification Service)를 이용해 알림 전송<br />
-<br />
 ---
-<br />
-🧭 3. 전체 실습 순서 요약
-<br />
-| 단계 | 주요 내용 | 도구 |<br />
-| ① | SNS 주제 생성 | Amazon SNS |<br />
-| ② | EC2 인스턴스 생성 및 역할 부여 | Amazon EC2 |<br />
-| ③ | CloudWatch Agent 설치 및 실행 | EC2 터미널 |<br />
-| ④ | CloudWatch 지표 및 경보 생성 | CloudWatch 콘솔 |<br />
-| ⑤ | CPU 부하 테스트 | EC2 터미널 |<br />
-| ⑥ | 이메일 알림 확인 | Gmail |<br />
-<br />
----
-<br />
-📍 4. SNS 주제 생성<br />
 
-1. AWS 콘솔 → SNS → 주제 → 주제 생성<br />
-2. 주제 이름: cloudwatch-alarm-topic<br />
-3. 구독 추가<br />
-    - 프로토콜: Email<br />
-    - 엔드포인트: 본인 이메일 주소 입력<br />
-4. 메일함에서 [Confirm subscription] 클릭<br />
+## **⚙️ 2. 실습 목표**
+
+- EC2 인스턴스의 **CPU 사용률**이 60%를 초과하면 **이메일로 알림을 받는 경보(Alarm)** 생성
+- CloudWatch Agent를 통해 **EC2 내부 지표(메모리, 디스크 등)** 도 수집
+- SNS(Simple Notification Service)를 이용해 알림 전송
+
+---
+
+## **🧭 3. 전체 실습 순서 요약**
+
+| **단계** | **주요 내용** | **도구** |
+| --- | --- | --- |
+| ① | SNS 주제 생성 | Amazon SNS |
+| ② | EC2 인스턴스 생성 및 역할 부여 | Amazon EC2 |
+| ③ | CloudWatch Agent 설치 및 실행 | EC2 터미널 |
+| ④ | CloudWatch 지표 및 경보 생성 | CloudWatch 콘솔 |
+| ⑤ | CPU 부하 테스트 | EC2 터미널 |
+| ⑥ | 이메일 알림 확인 | Gmail |
+
+---
+
+## **📍 4. SNS 주제 생성**
+
+1. AWS 콘솔 → **SNS → 주제 → 주제 생성**
+2. 주제 이름: cloudwatch-alarm-topic
+3. **구독 추가**
+    - 프로토콜: **Email**
+    - 엔드포인트: 본인 이메일 주소 입력
+4. 메일함에서 **[Confirm subscription]** 클릭
     
-    → “Confirmed” 메시지 확인<br />
+    → “Confirmed” 메시지 확인
     
-<br />
----
-<br />
-💻 5. EC2 인스턴스 생성<br />
-
-| 항목 | 설정값 |<br />
-| AMI | Amazon Linux 2023 |<br />
-| 인스턴스 유형 | t3.micro |<br />
-| IAM 역할 | CWAgentEC2Role |<br />
-| 네트워크 | 기본 VPC 선택 (필요 시 새 VPC 생성) |<br />
-| 보안 그룹 | SSH 허용 (My IP, Port 22) |<br />
-
-⚠️ VPC가 없다는 메시지가 나온 경우<br />
-→ VPC 대시보드 → “VPC 생성” → “기본 VPC 생성” 버튼 클릭
-<br />
 
 ---
-<br />
-🧠 6. CloudWatch Agent 설정 및 실행<br />
 
-(1) EC2 접속<br />
-AWS 콘솔 → EC2 → 인스턴스 → “연결” → **Session Manager** 사용<br /><br />
+## **💻 5. EC2 인스턴스 생성**
 
-(2) Agent 설치<br />
-'''
+| **항목** | **설정값** |
+| --- | --- |
+| AMI | Amazon Linux 2023 |
+| 인스턴스 유형 | t3.micro |
+| IAM 역할 | CWAgentEC2Role |
+| 네트워크 | 기본 VPC 선택 (필요 시 새 VPC 생성) |
+| 보안 그룹 | SSH 허용 (My IP, Port 22) |
+
+> ⚠️ VPC가 없다는 메시지가 나온 경우
+> 
+
+> → VPC 대시보드 → “VPC 생성” → “기본 VPC 생성” 버튼 클릭
+> 
+
+---
+
+## **🧠 6. CloudWatch Agent 설정 및 실행**
+
+### **(1) EC2 접속**
+
+AWS 콘솔 → EC2 → 인스턴스 → “연결” → **Session Manager** 사용
+
+### **(2) Agent 설치**
+
+```
 sudo yum install -y amazon-cloudwatch-agent
 ```
 
@@ -188,9 +194,14 @@ killall yes
 ## **✅ 12. 실습 결과 요약**
 
 | **항목** | **결과** |
+| --- | --- |
 | EC2 생성 및 역할 부여 | 완료 |
 | CloudWatch Agent 설치 | 완료 |
 | 지표 수집 확인 | 정상 |
 | CPU Alarm 설정 | 정상 |
 | SNS 이메일 알림 | 정상 작동 |
 | 테스트 및 복귀 | 성공 |
+
+![스크린샷 2025-10-25 01.37.16.png](attachment:e570189c-e771-4b3f-ba4e-004f3780707b:스크린샷_2025-10-25_01.37.16.png)
+
+![스크린샷 2025-10-25 01.37.29.png](attachment:c47d0d44-f38a-4029-8324-9b24845bcb63:스크린샷_2025-10-25_01.37.29.png)
