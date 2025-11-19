@@ -1,0 +1,671 @@
+# 2025-11-15 자료 : Sast , Sca 툴 조사 + 실습
+
+구분: 자료(조사)
+진행일: 2025년 11월 15일
+생성자: JH L
+생성 일시: 2025년 11월 15일 오후 10:56
+
+# 선정 조건 : Sast , Sca 의 대표 툴 & 업계에서 많이 사용한다 하는것들로 골랐음
+
+# SAST 보안 도구 4종
+
+## 1) SonarQube
+
+- 코드 품질 검사와 보안 취약점 분석 지원
+- 다양한 언어·프레임워크 대응
+- 팀 개발 환경에서 사용 빈도 높음
+
+## 2) Checkmarx
+
+- 기업 환경에서 많이 사용하는 정적 분석 플랫폼
+- 정확한 취약점 탐지와 정책 기반 관리 기능 제공
+- CI/CD 파이프라인 연동이 용이함
+
+## 3) Snyk Code
+
+- 빠른 스캔 속도와 개발자 친화적 사용성
+- PR 단계에서 자동 검사 진행 가능
+- 머신러닝 기반 코드 분석 기능 포함
+
+## 4) Semgrep
+
+- 오픈소스 기반의 가벼운 정적 분석 도구
+- 사용자 정의 규칙 작성 가능
+- 초기 도입 비용이 없어 개인·학습용으로 적합
+
+# SCA 보안 도구 4종
+
+## 1) Snyk Open Source
+
+- 오픈소스 의존성의 취약점 및 라이선스 위험 분석
+- Node.js, Java, Python 등 다양한 환경 지원
+- 개발 흐름에 자연스럽게 통합 가능
+
+## 2) Mend (WhiteSource)
+
+- 라이선스 컴플라이언스와 취약점 관리에 강점
+- 대규모 프로젝트에서 많이 사용됨
+- 정책 기반 의존성 관리 기능 제공
+
+## 3) Black Duck
+
+- 엔터프라이즈급 오픈소스 거버넌스 도구
+- 취약점·라이선스 리스크 종합 분석
+- 규제가 엄격한 기업 환경에서 활용
+
+## 4) OWASP Dependency-Check
+
+- 무료로 사용 가능한 오픈소스 SCA 도구
+- 기본적인 CVE 기반 의존성 점검 기능 제공
+- 개인 프로젝트나 학습용으로 적합
+
+# 실습 1 : Semgrep + OWASP Dependency-Check
+
+---
+
+## 실습 환경 준비
+
+> 프로젝트 디렉토리 생성
+> 
+
+```bash
+cd ~
+mkdir SastSca-test
+cd SastSca-test
+```
+
+> OWASP Juice Shop 다운로드
+> 
+
+```bash
+git clone https://github.com/juice-shop/juice-shop.git
+cd juice-shop
+```
+
+## Sast 실습 (Semgrep)
+
+> Semgrep 설치
+> 
+
+```bash
+brew install semgrep
+```
+
+![스크린샷 2025-11-17 17.06.17.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-17_17.06.17.png)
+
+![스크린샷 2025-11-17 17.06.42.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-17_17.06.42.png)
+
+> Semgrep 실행 (OWASP Top 10 룰셋 적용)
+> 
+
+```bash
+semgrep --config=p/owasp-top-ten . --json > semgrep-result.json
+```
+
+![스크린샷 2025-11-17 17.07.31.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-17_17.07.31.png)
+
+![스크린샷 2025-11-17 17.07.48.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-17_17.07.48.png)
+
+[semgrep-result.json](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/semgrep-result.json)
+
+## semgrep-result.json 해석 방법
+
+> semgrep-result.json은 아래 구조처럼 되어있음
+> 
+
+```json
+{
+  "version": "1.x",
+  "results": [ ... ],
+  "errors": [ ... ],
+  "paths": { ... },
+  "time": { ... }
+}
+```
+
+> results : 실제 취약점 목록
+> 
+
+> errors : 코드 파싱 오류
+> 
+
+> 나머지는 모두 부가 정보
+> 
+
+### 가장 먼저 봐야 하는것 = results 배열
+
+> 여기 있는 각 항목 한 개 = 취약점 한 개
+> 
+
+```json
+{
+      "check_id": "javascript.sequelize.security.audit.sequelize-injection-express.express-sequelize-injection",
+      "path": "data/static/codefixes/dbSchemaChallenge_1.ts",
+      "start": { "line": 5, "col": 28, "offset": 284 },
+      "end": { "line": 5, "col": 162, "offset": 418 },
+      "extra": {
+        "message": "Detected a sequelize statement that is tainted by user-input. This could lead to SQL injection if the variable is user-controlled and is not properly sanitized. In order to prevent SQL injection, it is recommended to use parameterized queries or prepared statements.",
+        "metadata": {
+          "interfile": true,
+          "references": [
+            "https://sequelize.org/docs/v6/core-concepts/raw-queries/#replacements"
+          ],
+          "category": "security",
+          "technology": ["express"],
+          "cwe": [
+            "CWE-89: Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')"
+          ],
+          "owasp": ["A01:2017 - Injection", "A03:2021 - Injection"],
+          "cwe2022-top25": true,
+          "cwe2021-top25": true,
+          "subcategory": ["vuln"],
+          "likelihood": "HIGH",
+          "impact": "HIGH",
+          "confidence": "HIGH",
+          "license": "Semgrep Rules License v1.0. For more details, visit semgrep.dev/legal/rules-license",
+          "vulnerability_class": ["SQL Injection"],
+          "source": "https://semgrep.dev/r/javascript.sequelize.security.audit.sequelize-injection-express.express-sequelize-injection",
+          "shortlink": "https://sg.run/gjoe"
+        },
+        "severity": "ERROR",
+        "fingerprint": "requires login",
+        "lines": "requires login",
+        "validation_state": "NO_VALIDATOR",
+        "engine_kind": "OSS"
+      }
+    },
+```
+
+### 1. Check_id - 어떤 규칙에 걸렸는가?
+
+```json
+"check_id": "javascript.sequelize.security.audit.sequelize-injection-express.express-sequelize-injection"
+```
+
+> 어떠한 기준으로 탐지된 취약점인지 알려줌
+> 
+
+> 해석 : Sequelize 쿼리에 인젝션 위험이 있다는 의미
+> 
+
+### 2.Path - 어느 파일이 문제인가?
+
+```json
+"path": "data/static/codefixes/dbSchemaChallenge_1.ts"
+```
+
+> 취약점이 발생한 파일 경로
+> 
+
+### 3.Start / end - 몇 번째 줄이 문제인가?
+
+```json
+"start": { "line": 5, "col": 28 },
+"end":   { "line": 5, "col": 162 }
+```
+
+> 문제 코드가 5번 줄, 28 ~ 162 번째 글자 사이
+> 
+
+### 4.extra.message - 취약점 설명
+
+```json
+"message": "Detected a sequelize statement that is tainted by user-input. ... SQL injection ..."
+```
+
+> Semgrep가 직접 분석해서 요약해준 취약점 핵심 설명
+> 
+
+### 5.extra.metadata - 취약점에 대한 전문적 정보
+
+> 이 블록 안에 취약점 분류, 심각도, 관련 표준 등이 담겨 있음
+> 
+
+> 취약점 국제 표준 (CWE)
+> 
+
+```json
+"cwe": [
+            "CWE-89: Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection')"
+          ],
+```
+
+→ SQL injection 공식 취약점 번호
+
+> OWASP Top 10
+> 
+
+```json
+"owasp": ["A01:2017 - Injection", "A03:2021 - Injection"],
+```
+
+→ 인젝션 계열 취약점 이라는 뜻
+
+> likelihood / impact / confidence
+> 
+
+```json
+"likelihood": "HIGH",
+"impact": "HIGH",
+"confidence": "HIGH",
+```
+
+→ 공격 가능성 높음
+
+→ 피해 크기 높음
+
+→ Semgrep가 “이거 확실해” 라고 판단한 정확성 수치
+
+### 6. Severity - 위험도
+
+```json
+"severity": "ERROR",
+```
+
+Semgrep 위험도 체계
+
+| 값 | 의미 |
+| --- | --- |
+| ERROR | 매우 위험 |
+| WARNING | 중간 위험 |
+| INFO | 낮은 위험 |
+
+## SCA 실습 (Dependency-Check)
+
+> Dependency-Check 설치
+> 
+
+```bash
+brew install dependency-check
+```
+
+![스크린샷 2025-11-17 17.19.20.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-17_17.19.20.png)
+
+![스크린샷 2025-11-17 17.19.40.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-17_17.19.40.png)
+
+> 의존성 설치
+> 
+
+```bash
+cd ~/SastSca-test/juice-shop
+npm install
+cd frontend
+npm install
+cd ..
+```
+
+> 출력 폴더 생성
+> 
+
+```bash
+mkdir dc-report
+```
+
+> Dependency-Check 실행
+> 
+
+```bash
+dependency-check --scan . --format "ALL" --out dc-report
+```
+
+![image.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/image.png)
+
+> 전부 같은 분석 결과를 기반으로 만들어졌기 때문에 사람이 읽기 쉬운 HTML로 열면 된다.
+> 
+
+[dependency-check-jenkins.html](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/dependency-check-jenkins.html)
+
+![image.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/image%201.png)
+
+어.. 카톡에 알려드린데로 정리 하다 실습 못 할거같아서 위에 html 파일 올려놨는데 스크린샷 또는 그냥 파일 ai 한테 해석 해 달라 하면 해줍니다 ㅠ
+
+<aside>
+💡
+
+실습 1 을 하면서 느낀점 진짜 아무것도 안 했는데 설치도 쉽고 실행만 했더니 두개 돌리는데 1분 이 안 넘는 시간으로 결과 값이 나왔습니다.
+
+</aside>
+
+---
+
+# 실습 2 : Semgrep + Snyk
+
+## Sast 실습 (Semgrep)
+
+실습 1과 같기 때문에 생략하겠습니다
+
+## Sca 실습 (Synk)
+
+### 1. Snyk Cli 설치
+
+> Snyk는 SCA(Software Composition Analysis) 도구로 의존성 취약점을 매우 잘 잡아줌.
+> 
+
+> Snyk 설치
+> 
+
+```bash
+brew tap snyk/tap
+brew install snyk
+```
+
+### 2. Snyk 로그인
+
+> Snyk CLI는 반드시 로그인해야 취약점 DB를 조회할 수 있음.
+> 
+
+```bash
+snyk auth
+```
+
+테스트 할때는 GitHub으로 로그인 했습니다.
+
+### 3. **Snyk SCA 실행**
+
+```bash
+cd "/Users/leejehyuk/Desktop/DevOps 프로젝트/SastSca-test/juice-shop"
+snyk test
+```
+
+> 결과로 나오는 것
+> 
+- 취약한 패키지 목록
+- 패치 가능한 버전
+- CVE ID 목록
+- 심각도
+- 취약한 경로
+    
+    ![스크린샷 2025-11-19 01.15.39.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-19_01.15.39.png)
+    
+    ![스크린샷 2025-11-19 01.15.50.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-19_01.15.50.png)
+    
+    ![스크린샷 2025-11-19 01.15.56.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-19_01.15.56.png)
+    
+
+```bash
+snyk test --json > snyk-result.json
+```
+
+> json 파일로 저장 방법.
+> 
+
+[snyk-result.json](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/snyk-result.json)
+
+---
+
+# 실습 3 : Semgrep + Trivity
+
+## Sast 실습 (Semgrep)
+
+> 생략
+> 
+
+## Sca 실습 (Trivity)
+
+### 1. **juice-shop Docker 이미지 빌드**
+
+> Docker 이미지 빌드
+> 
+
+```bash
+docker build -t juice-shop-test .
+```
+
+![스크린샷 2025-11-19 01.23.45.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-19_01.23.45.png)
+
+![스크린샷 2025-11-19 01.24.05.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-19_01.24.05.png)
+
+> 빌드 확인
+> 
+
+```bash
+docker images | grep juice-shop-test
+```
+
+![스크린샷 2025-11-19 01.24.45.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-19_01.24.45.png)
+
+### 2. Trivy 설치
+
+```bash
+brew install aquasecurity/trivy/trivy
+```
+
+![스크린샷 2025-11-19 01.25.19.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-19_01.25.19.png)
+
+### 3. Trivy로 이미지 SCA 실행
+
+> Docker 이미지 취약점 분석
+> 
+
+```bash
+trivy image --format json --output trivy-result.json juice-shop-test
+```
+
+![스크린샷 2025-11-19 01.25.58.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-19_01.25.58.png)
+
+> 터미널에서 출력 방법
+> 
+
+```bash
+trivy image juice-shop-test
+```
+
+![스크린샷 2025-11-19 01.29.29.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-19_01.29.29.png)
+
+![스크린샷 2025-11-19 01.29.49.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-19_01.29.49.png)
+
+> 너무 길어서 뒷 사진 생략
+> 
+
+# Semgrep 느낀점
+
+<aside>
+💡
+
+전체적으로 구현하기 간단하고 속도가 빨랐습니다. 
+
+</aside>
+
+---
+
+# 실습 4 : CodeQL + **Dependency-Check**
+
+## Sast 실습 (CodeQL)
+
+### 1. **CodeQL 설치**
+
+```bash
+brew install --cask codeql
+```
+
+![스크린샷 2025-11-19 01.44.49.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-19_01.44.49.png)
+
+### 2. **git-lfs 설치**
+
+```bash
+brew install git-lfs
+git lfs install
+```
+
+![스크린샷 2025-11-19 01.52.57.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-19_01.52.57.png)
+
+![스크린샷 2025-11-19 01.53.14.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-19_01.53.14.png)
+
+### 3. **CodeQL 전용 작업 디렉토리 생성**
+
+> CodeQL은 쿼리팩을 자동 포함하지 않기 때문에 반드시 별도 작업 폴더를 만들어야 한다.
+> 
+
+```bash
+mkdir -p ~/codeql-home
+mkdir -p ~/codeql-dbs
+cd ~/codeql-home
+```
+
+### 4. **CodeQL 쿼리팩(GitHub) 전체 clone**
+
+```bash
+git clone https://github.com/github/codeql.git
+```
+
+![스크린샷 2025-11-19 01.54.50.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-19_01.54.50.png)
+
+### 5. **CodeQL DB 생성 (SAST 준비)**
+
+```bash
+cd ~/codeql-dbs
+codeql database create juice-shop-db \
+  --language=javascript \
+  --source-root="/Users/leejehyuk/Desktop/DevOps 프로젝트/SastSca-test/juice-shop" \
+  --search-path ~/codeql-home
+```
+
+![스크린샷 2025-11-19 02.05.09.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-19_02.05.09.png)
+
+### 6. **CodeQL 쿼리팩 다운**
+
+```bash
+codeql pack download codeql/javascript-queries
+```
+
+![스크린샷 2025-11-19 02.10.47.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-19_02.10.47.png)
+
+### 7. CodeQL Sast 분석 실행
+
+```bash
+cd ~/codeql-dbs
+
+codeql database analyze juice-shop-db \
+  --format=sarifv2.1.0 \
+  --sarif-category=javascript \
+  --output codeql-result.sarif
+```
+
+![스크린샷 2025-11-19 02.13.30.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-19_02.13.30.png)
+
+![스크린샷 2025-11-19 02.13.33.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-19_02.13.33.png)
+
+> **성공 후 출력 파일**
+> 
+
+```bash
+~/codeql-dbs/codeql-result.sarif
+```
+
+# CodeQL 느낀점
+
+<aside>
+💡
+
+하면서 느낀 점 CodeQL은 너무 비효율적이고 불편하다. 따라서 이후 SCA 툴은 위에서 사용해봤기 때문에 더 진행 안 하고 3번째 SAST 툴로 넘어가겠습니다.
+
+</aside>
+
+---
+
+# 실습 5 : **SonarQube + Dependency-Check**
+
+## Sast 실습
+
+### 1. **SonarQube 서버 실행**
+
+```bash
+docker run -d --name sonarqube \
+  -p 9000:9000 \
+  sonarqube:lts-community
+```
+
+![스크린샷 2025-11-19 02.24.23.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-19_02.24.23.png)
+
+> 접속 : [http://localhost:9000](http://localhost:9000/)
+기본 로그인
+ID : admin
+PW : admin
+> 
+
+![스크린샷 2025-11-19 02.27.29.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-19_02.27.29.png)
+
+### 2. **SonarScanner 설치 (터미널 분석 도구)**
+
+```bash
+brew install sonar-scanner
+```
+
+![스크린샷 2025-11-19 02.28.10.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-19_02.28.10.png)
+
+### 3. **juice-shop 프로젝트에 설정 파일 추가**
+
+> sonar-project.properties 파일 생성
+> 
+
+```bash
+touch sonar-project.properties
+```
+
+![스크린샷 2025-11-19 02.29.46.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-19_02.29.46.png)
+
+> 아래 내용 [sonar-project.properties](http://sonar-project.properties) 에 입력하기
+> 
+
+```bash
+sonar.projectKey=juice-shop
+sonar.projectName=Juice Shop SAST Test
+sonar.projectVersion=1.0
+sonar.sources=.
+sonar.sourceEncoding=UTF-8
+sonar.host.url=http://localhost:9000
+sonar.login=squ_6eb40f138bce6bf1a13c853a65683a88e5b84709
+```
+
+> sonar.login=squ_6eb40f138bce6bf1a13c853a65683a88e5b84709 토큰값 입력해야합니다.
+로그인 후 오른쪽 위 프로필 누른 뒤 My Account 클릭
+> 
+
+![image.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/image%202.png)
+
+> 오른 쪽 위 Security 클릭
+> 
+
+![image.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/image%203.png)
+
+> Name = 아무거나 , Type = User Token , 생성 클릭
+> 
+
+### 4. **SonarScanner로 SAST 분석 실행**
+
+```bash
+sonar-scanner
+```
+
+![image.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/image%204.png)
+
+### 5. 결과 확인
+
+> 접속 : [http://localhost:9000](http://localhost:9000/)
+> 
+
+![스크린샷 2025-11-19 02.46.01.png](2025-11-15%20%EC%9E%90%EB%A3%8C%20Sast%20,%20Sca%20%ED%88%B4%20%EC%A1%B0%EC%82%AC%20+%20%EC%8B%A4%EC%8A%B5/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-19_02.46.01.png)
+
+UI로 확인 가능합니다.
+
+# 전체 사용 후기
+
+## Sast
+
+### 1. Semgrep : 전체적으로 가볍고 작업 시간이 짧다, 기초 설정 필요 없이 간단하게 돌릴수 있다.
+
+### 2. CodeQL : 기초 설정부터 비효율적이고 필요한 설정이 너무 많아 불편하다. (최악)
+
+### 3. SonarQube : 초기 설정이 있긴 하지만 간단하고 작업 시간이 짧다, UI로 볼수 있다는 장점이 있다.
+
+### 나의 선택 : 1 & 3
+
+## SCA
+
+### 1. OWASP : 여러 종류의 파일로 만들어줘서 상황에 따라 파일을 열어서 볼수 있다. 작업시간이 짧다. ( 완전 무료) , 정확도가 좀 떨어지는거 같음 (자세한 비교를 해본건 아니라 얼만큼 차이 나는지는 확인 해봐야 하지만 2,3에 비해서 제대로 찾은건지 의심이 들었음)
+
+### 2. Snyk : 취약점 보안 제안이 가능한 제품 , Docker도 취약점 분석 가능, (일부 무료 - 얼만큼 까지 무료인지 확인 해봐야함)
+
+### 3. Trivy : Docker로 이미지화 해서 검사 , 도커로 만드는게 좀 시간이 걸려 Trivy 만을 위해 도커를 만들어야한다면 비추 이지만 그게 아니라 원래 만들어야한다면 좋습니다.
+
+### 나의 선택 : 2 & 3
