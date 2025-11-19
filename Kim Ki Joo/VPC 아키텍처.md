@@ -15,7 +15,7 @@
     > V 1.1
     > 
     
-    ![SCT_VPC_아키텍처2.png](images/e6b1505d-0af6-4164-8db3-b368b9efae84.png)
+    ![SCT_VPC_아키텍처2.png](images/SCT_VPC_%E1%84%8B%E1%85%A1%E1%84%8F%E1%85%B5%E1%84%90%E1%85%A6%E1%86%A8%E1%84%8E%E1%85%A5%202.png)
     
     - 서비스용 VPC랑 개발을 위한 블루그린용 VPC를 설정
     - 피드백
