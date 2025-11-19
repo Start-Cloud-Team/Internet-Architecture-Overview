@@ -28,7 +28,7 @@ AWS CLI 또는 SDK를 사용해서 실행을 자동화하는 것 역시 가능.
 
 - [그림 1] CodeBuild를 사용해 빌드를 실행할 때 나타나는 현상
     
-    ![image.png](%EC%9E%90%EB%A3%8C%EC%A1%B0%EC%82%AC%20AWS%20CodeBuild%EB%9E%80/image.png)
+    ![image2.png](images/image2.png)
     
 1. 입력으로 빌드 프로젝트와 함께 CodeBuild를 제공해야함.
     - 빌드 프로젝트 포함 요소 : 소스 코드를 가져올 위치, 사용할 빌드 환경, 실행할 빌드 명령 및 빌드 출력을 저장할 위치를 비롯한 빌드 실행 방법에 대한 정보가 포함되어 있어야함.
