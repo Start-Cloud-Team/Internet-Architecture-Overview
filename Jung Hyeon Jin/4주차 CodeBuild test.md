@@ -14,7 +14,6 @@ CodeBuild 생성
 <img width="1186" height="441" alt="image" src="https://github.com/user-attachments/assets/30575283-bf8a-4a7c-b484-81548ac95b5a" />
 소스 코드 디텍토리에 있는 yml 파일과 연결
 
-<img width="1001" height="381" alt="image" src="https://github.com/user-attachments/assets/7b2f7864-1432-4ac7-8790-f18a6bbd34c1" />
 yml 파일에 사용하는 환경 변수 추가
 
 <br />
