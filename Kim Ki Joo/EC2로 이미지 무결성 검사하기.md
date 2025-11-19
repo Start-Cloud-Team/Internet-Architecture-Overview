@@ -60,8 +60,6 @@ ECR에서 이미지 받아와서 실행하면 컨테이너가 돌아가나요?**
 
 바로 잘 접속된다.
 
-![EC2 접속.png](2025-11-10%20%EC%9E%90%EB%A3%8C%EC%A1%B0%EC%82%AC%20EC2%EB%A1%9C%20%EC%9D%B4%EB%AF%B8%EC%A7%80%20%EB%AC%B4%EA%B2%B0%EC%84%B1%20%EA%B2%80%EC%82%AC%ED%95%98%EA%B8%B0/EC2_%EC%A0%91%EC%86%8D.png)
-
 다 했다면, 이제 도커를 깔고 이미지를 설치할 수 있어야한다. 그렇다면 필요한 것은 2가지이다.
 
 1. AWS cli 환경 → ECR 접근
@@ -331,14 +329,7 @@ ECR에서 이미지 받아와서 실행하면 컨테이너가 돌아가나요?**
         
     
     - 설치 사진
-    
-    ![image.png](2025-11-10%20%EC%9E%90%EB%A3%8C%EC%A1%B0%EC%82%AC%20EC2%EB%A1%9C%20%EC%9D%B4%EB%AF%B8%EC%A7%80%20%EB%AC%B4%EA%B2%B0%EC%84%B1%20%EA%B2%80%EC%82%AC%ED%95%98%EA%B8%B0/image%201.png)
-    
-    ![image.png](2025-11-10%20%EC%9E%90%EB%A3%8C%EC%A1%B0%EC%82%AC%20EC2%EB%A1%9C%20%EC%9D%B4%EB%AF%B8%EC%A7%80%20%EB%AC%B4%EA%B2%B0%EC%84%B1%20%EA%B2%80%EC%82%AC%ED%95%98%EA%B8%B0/image%202.png)
-    
-    ![image.png](2025-11-10%20%EC%9E%90%EB%A3%8C%EC%A1%B0%EC%82%AC%20EC2%EB%A1%9C%20%EC%9D%B4%EB%AF%B8%EC%A7%80%20%EB%AC%B4%EA%B2%B0%EC%84%B1%20%EA%B2%80%EC%82%AC%ED%95%98%EA%B8%B0/image%203.png)
-    
-    ![image.png](2025-11-10%20%EC%9E%90%EB%A3%8C%EC%A1%B0%EC%82%AC%20EC2%EB%A1%9C%20%EC%9D%B4%EB%AF%B8%EC%A7%80%20%EB%AC%B4%EA%B2%B0%EC%84%B1%20%EA%B2%80%EC%82%AC%ED%95%98%EA%B8%B0/image%204.png)
+
     
     ---
     
@@ -357,7 +348,6 @@ ECR에서 이미지 받아와서 실행하면 컨테이너가 돌아가나요?**
     
     - 설치 사진
     
-    ![image.png](2025-11-10%20%EC%9E%90%EB%A3%8C%EC%A1%B0%EC%82%AC%20EC2%EB%A1%9C%20%EC%9D%B4%EB%AF%B8%EC%A7%80%20%EB%AC%B4%EA%B2%B0%EC%84%B1%20%EA%B2%80%EC%82%AC%ED%95%98%EA%B8%B0/image%205.png)
     
     ---
     
@@ -380,7 +370,6 @@ ECR에서 이미지 받아와서 실행하면 컨테이너가 돌아가나요?**
     
     - 설치 사진
     
-    ![image.png](2025-11-10%20%EC%9E%90%EB%A3%8C%EC%A1%B0%EC%82%AC%20EC2%EB%A1%9C%20%EC%9D%B4%EB%AF%B8%EC%A7%80%20%EB%AC%B4%EA%B2%B0%EC%84%B1%20%EA%B2%80%EC%82%AC%ED%95%98%EA%B8%B0/image%206.png)
     
     ---
     
@@ -407,20 +396,17 @@ ECR에서 이미지 받아와서 실행하면 컨테이너가 돌아가나요?**
     > 
     - 설정 사진
     
-    ![image.png](2025-11-10%20%EC%9E%90%EB%A3%8C%EC%A1%B0%EC%82%AC%20EC2%EB%A1%9C%20%EC%9D%B4%EB%AF%B8%EC%A7%80%20%EB%AC%B4%EA%B2%B0%EC%84%B1%20%EA%B2%80%EC%82%AC%ED%95%98%EA%B8%B0/image%207.png)
     
     ---
     
     ## ➅ 설치 완료
     
-    ![image.png](2025-11-10%20%EC%9E%90%EB%A3%8C%EC%A1%B0%EC%82%AC%20EC2%EB%A1%9C%20%EC%9D%B4%EB%AF%B8%EC%A7%80%20%EB%AC%B4%EA%B2%B0%EC%84%B1%20%EA%B2%80%EC%82%AC%ED%95%98%EA%B8%B0/image%208.png)
     
 
 1. 도커에서 이미지 받고 설치하기
 
 1. ECR로그인을 도커에다가 등록
 
-![image.png](2025-11-10%20%EC%9E%90%EB%A3%8C%EC%A1%B0%EC%82%AC%20EC2%EB%A1%9C%20%EC%9D%B4%EB%AF%B8%EC%A7%80%20%EB%AC%B4%EA%B2%B0%EC%84%B1%20%EA%B2%80%EC%82%AC%ED%95%98%EA%B8%B0/image%209.png)
 
 1. 이미지 확인하기
 
@@ -428,17 +414,14 @@ ECR에서 이미지 받아와서 실행하면 컨테이너가 돌아가나요?**
 aws ecr describe-repositories --region ap-northeast-2
 ```
 
-![image.png](2025-11-10%20%EC%9E%90%EB%A3%8C%EC%A1%B0%EC%82%AC%20EC2%EB%A1%9C%20%EC%9D%B4%EB%AF%B8%EC%A7%80%20%EB%AC%B4%EA%B2%B0%EC%84%B1%20%EA%B2%80%EC%82%AC%ED%95%98%EA%B8%B0/image%2010.png)
 
 - 레포지토리 종류 확인
 
 - 이미지 제발 TAG 달아서 빌드해주세요(저거 sha256치는거 겁나 어려워요)
 
-![스크린샷 2025-11-12 오후 4.48.40.png](2025-11-10%20%EC%9E%90%EB%A3%8C%EC%A1%B0%EC%82%AC%20EC2%EB%A1%9C%20%EC%9D%B4%EB%AF%B8%EC%A7%80%20%EB%AC%B4%EA%B2%B0%EC%84%B1%20%EA%B2%80%EC%82%AC%ED%95%98%EA%B8%B0/68c5d1b3-4ae3-4e44-97c9-3b581b6e7715.png)
 
 - 이미지 종류 확인
 
-![스크린샷 2025-11-12 오후 4.50.25.png](2025-11-10%20%EC%9E%90%EB%A3%8C%EC%A1%B0%EC%82%AC%20EC2%EB%A1%9C%20%EC%9D%B4%EB%AF%B8%EC%A7%80%20%EB%AC%B4%EA%B2%B0%EC%84%B1%20%EA%B2%80%EC%82%AC%ED%95%98%EA%B8%B0/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA_2025-11-12_%E1%84%8B%E1%85%A9%E1%84%92%E1%85%AE_4.50.25.png)
 
 - 이미지 풀  (이미 미리 다운로드를 받았었음)
 
