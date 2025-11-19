@@ -24,7 +24,7 @@
 > 
 - *(사진)*
     
-    ![image.png](Kim%20Ki%20Joo/images/image.png)
+    ![image.png](images/image.png)
     
     VPC에는 리전의 각 가용성 영역에 하나의 서브넷이 있고, 각 서브넷에 EC2 인스턴스가 있고,
     VPC의 리소스와 인터넷 간의 통신을 허용하는 인터넷 게이트웨이가 있는 상황임.
