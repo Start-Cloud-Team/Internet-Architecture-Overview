@@ -1,0 +1,462 @@
+## 11.14 도커 파일 수정(추가본)
+
+```yaml
+# 베이스 이미지
+FROM php:5.6-apache
+
+# **Step 1: Apache가 8080 포트를 리스닝하도록 설정**
+# 이 명령어는 Apache 설정 파일(ports.conf)의 80번 포트 리스닝 부분을 8080으로 변경합니다.
+RUN sed -i 's/Listen 80/Listen 8080/g' /etc/apache2/ports.conf && \
+    # default-ssl.conf에도 8080이 사용되도록 수정 (선택적)
+    sed -i 's/<VirtualHost \*:443>/<VirtualHost \*:8080>/g' /etc/apache2/sites-available/default-ssl.conf
+    
+# 웹 루트 디렉토리로 코드 복사
+COPY . /var/www/html/
+
+# 웹 서버 실행 사용자(www-data)에게 디렉토리 권한 부여
+RUN chown -R www-data:www-data /var/www/html/ && \
+    chmod -R 755 /var/www/html/
+
+# **Step 2: 노출 포트를 8080으로 변경**
+# 컨테이너가 8080 포트를 노출하도록 명시
+EXPOSE 8080
+
+# 컨테이너 시작 시 Apache 실행
+CMD ["apache2-foreground"]
+```
+
+도커 파일을 코드 빌드 실습할 때 제작하면서 포트를 80으로 설정 하여 healthy check 가 되지 않는 문제가 발생하였습니다.
+
+## yml 파일 수정본
+
+```yaml
+version: 0.1
+
+phases:
+  pre_build:
+    commands:
+      - echo "=== PRE_BUILD ==="
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+
+  build:
+    commands:
+      - echo "=== BUILD ==="
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+
+  post_build:
+    commands:
+      - echo "=== POST_BUILD push image ==="
+      - docker push $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+
+      - echo "=== Create imagedefinitions.json ==="
+      - |
+        cat <<EOF > imageDetail.json
+        {
+          "name": "Bwapp-container",
+          "image": "329984431650.dkr.ecr.ap-northeast-2.amazonaws.com/ljh_1:$IMAGE_TAG"
+        }
+        EOF
+
+      - echo "=== Create taskdef.json ==="
+      - |
+        cat <<EOF > taskdef.api.json
+        {
+          "family": "SCT-Bwapp-defition",
+          "executionRoleArn": "arn:aws:iam::329984431650:role/ecsTaskExecutionRole",
+          "networkMode": "awsvpc",
+          "requiresCompatibilities": ["FARGATE"],
+          "cpu": "256",
+          "memory": "2048",
+          "containerDefinitions": [
+            {
+              "name": "Bwapp-container",
+              "image": "329984431650.dkr.ecr.ap-northeast-2.amazonaws.com/ljh_1:$IMAGE_TAG",
+              "essential": true,
+              "portMappings": [
+                {
+                  "containerPort": 7890,
+                  "protocol": "tcp"
+                }
+              ]
+            }
+          ]
+        }
+        EOF
+
+      - echo "=== Create appspec.api.yml ==="
+      - |
+        cat <<EOF > appspec.api.yml
+        version: 0.0
+        Resources:
+          - TargetService:
+              Type: AWS::ECS::Service
+              Properties:
+                TaskDefinition: "SCT-Bwapp-task-defition"
+                LoadBalancerInfo:
+                  ContainerName: "Bwapp-container"
+                  ContainerPort: 7890
+        EOF
+
+artifacts:
+  files:
+    - imageDetail.json
+    - taskdef.api.json
+    - appspec.api.yml
+```
+
+## 실패 과정
+
+### CodeBuild 생성 도중 생긴 오류
+
+```yaml
+웹후크 생성 실패
+Access denied to connection arn:aws:codeconnections:ap-northeast-2:329984431650:connection/f79a80a3-c0f2-4059-bd81-5e263ac7429e Troubleshooting guide: https://docs.aws.amazon.com/codebuild/latest/userguide/connections-github-app.html#connections-github-troubleshooting
+```
+
+- CodeBuild에서 사용 중인 **IAM 역할**에 GitHub 연결을 사용할 권한이 없다.
+- **연결 하기 위해서는 CodeBuild 서비스 역할에** `codebuild:UseConnection` 권한이 포함되어야 한다.
+
+### 해결 과정
+<img width="2000" height="1123" alt="image" src="https://github.com/user-attachments/assets/2d0594da-64ab-474e-af79-26b7fd0159ee" />
+<img width="2048" height="1153" alt="image" src="https://github.com/user-attachments/assets/a397e55f-d98d-4056-ae20-3a263ece7d21" />
+Json을 통해 아래 코드를 입력한다.
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {   
+            "Effect": "Allow",
+            "Resource": [
+                "arn:aws:logs:ap-northeast-2:329984431650:log-group:/aws/codebuild/bWAPP-CodeBuild",
+                "arn:aws:logs:ap-northeast-2:329984431650:log-group:/aws/codebuild/bWAPP-CodeBuild:*"
+            ],
+            "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "codebuild:CreateReportGroup",
+                "codebuild:CreateReport",
+                "codebuild:UpdateReport",
+                "codebuild:BatchPutTestCases",
+                "codebuild:BatchPutCodeCoverages"
+            ],
+            "Resource": [
+                "arn:aws:codebuild:ap-northeast-2:329984431650:report-group/bWAPP-CodeBuild-*"
+            ]
+        }
+    ]
+}
+```
+<img width="2097" height="1045" alt="image" src="https://github.com/user-attachments/assets/3843f68c-b0ec-4319-bc02-2b3a90504477" />
+
+생성한 정책을 연결하기 위한 역할 생성
+<img width="2000" height="1093" alt="image" src="https://github.com/user-attachments/assets/8c03ca33-6d2c-437d-a391-3c5b1b122a93" />
+<img width="2000" height="1096" alt="image" src="https://github.com/user-attachments/assets/d23bd920-5b1c-4ecd-9881-a2c95fe455fb" />
+<img width="2000" height="506" alt="image" src="https://github.com/user-attachments/assets/e24de430-b3f0-4787-87ce-a1a6db2f33e2" />
+<img width="2000" height="1161" alt="image" src="https://github.com/user-attachments/assets/ef31986e-2f84-47a3-8af6-67a577956b53" />
+
+### 빌드 실패
+
+### 두 번째 오류 - 빌드 실패
+
+```yaml
+[Container] 2025/11/12 10:51:07.324548 Running on CodeBuild On-demand
+[Container] 2025/11/12 10:51:07.324562 Waiting for agent ping
+[Container] 2025/11/12 10:51:07.727051 Waiting for DOWNLOAD_SOURCE
+[Container] 2025/11/12 10:51:11.507043 Phase is DOWNLOAD_SOURCE
+[Container] 2025/11/12 10:51:11.510562 CODEBUILD_SRC_DIR=/codebuild/output/src1484004589/src/github.com/Start-Cloud-Team/bWAPP
+[Container] 2025/11/12 10:51:11.511142 YAML location is /codebuild/output/src1484004589/src/github.com/Start-Cloud-Team/bWAPP/buildspec.yml
+[Container] 2025/11/12 10:51:11.513425 Setting HTTP client timeout to higher timeout for Github and GitHub Enterprise sources
+[Container] 2025/11/12 10:51:11.513549 Processing environment variables
+[Container] 2025/11/12 10:51:12.053367 No runtime version selected in buildspec.
+[Container] 2025/11/12 10:51:12.093775 Moving to directory /codebuild/output/src1484004589/src/github.com/Start-Cloud-Team/bWAPP
+[Container] 2025/11/12 10:51:12.093816 Cache is not defined in the buildspec
+[Container] 2025/11/12 10:51:12.253044 Skip cache due to: no paths specified to be cached
+[Container] 2025/11/12 10:51:12.253351 Registering with agent
+[Container] 2025/11/12 10:51:12.365501 Phases found in YAML: 3
+[Container] 2025/11/12 10:51:12.365528  POST_BUILD: 8 commands
+[Container] 2025/11/12 10:51:12.365536  PRE_BUILD: 2 commands
+[Container] 2025/11/12 10:51:12.365541  BUILD: 3 commands
+[Container] 2025/11/12 10:51:12.365908 Phase complete: DOWNLOAD_SOURCE State: SUCCEEDED
+[Container] 2025/11/12 10:51:12.365922 Phase context status code:  Message: 
+[Container] 2025/11/12 10:51:12.670355 Entering phase INSTALL
+[Container] 2025/11/12 10:51:12.788289 Phase complete: INSTALL State: SUCCEEDED
+[Container] 2025/11/12 10:51:12.788315 Phase context status code:  Message: 
+[Container] 2025/11/12 10:51:12.825177 Entering phase PRE_BUILD
+[Container] 2025/11/12 10:51:12.976828 Running command echo "=== PRE_BUILD ==="
+=== PRE_BUILD ===
+
+[Container] 2025/11/12 10:51:12.983262 Running command aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+
+An error occurred (AccessDeniedException) when calling the GetAuthorizationToken operation: User: arn:aws:sts::329984431650:assumed-role/codebuild-bWAPP-CodeBuild-service-role/AWSCodeBuild-b519fca5-dc53-457f-813e-e9fdd178d432 is not authorized to perform: ecr:GetAuthorizationToken on resource: * because no identity-based policy allows the ecr:GetAuthorizationToken action
+Error: Cannot perform an interactive login from a non TTY device
+
+**[Container] 2025/11/12 10:51:24.609847 Command did not exit successfully aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com exit status 1
+[Container] 2025/11/12 10:51:24.612722 Phase complete: PRE_BUILD State: FAILED
+[Container] 2025/11/12 10:51:24.612740 Phase context status code: COMMAND_EXECUTION_ERROR Message: Error while executing command: aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com. Reason: exit status 1**
+
+```
+
+**CodeBuild가 ECR에 로그인하려고 하는데 권한이 없어서 실패**
+
+→ 도커 로그인이 안됨
+
+**bWAPP-CodeBuild-service-Role에 ECR 접근 권한이 존재하지 않기 때문**
+
+- ECR에 접근 가능해야 도커 이미지 푸시 가능
+
+### 해결 과정
+
+아까 전 만들어둔 정책에 아래 코드를 추가한다.
+
+```json
+
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ecr:GetAuthorizationToken",
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:PutImage",
+                "ecr:InitiateLayerUpload",
+                "ecr:UploadLayerPart",
+                "ecr:CompleteLayerUpload"
+            ],
+            "Resource": "*"
+        }
+```
+**CodeBuild가 ECR에 로그인하려고 하는데 권한이 없어서 실패**
+
+→ 도커 로그인이 안됨
+
+**bWAPP-CodeBuild-service-Role에 ECR 접근 권한이 존재하지 않기 때문**
+
+- ECR에 접근 가능해야 도커 이미지 푸시 가능
+
+### 해결 과정
+
+아까 전 만들어둔 정책에 아래 코드를 추가한다.
+## 실패 과정
+
+### CodeBuild 생성 도중 생긴 오류
+
+```yaml
+웹후크 생성 실패
+Access denied to connection arn:aws:codeconnections:ap-northeast-2:329984431650:connection/f79a80a3-c0f2-4059-bd81-5e263ac7429e Troubleshooting guide: https://docs.aws.amazon.com/codebuild/latest/userguide/connections-github-app.html#connections-github-troubleshooting
+```
+
+- CodeBuild에서 사용 중인 **IAM 역할**에 GitHub 연결을 사용할 권한이 없다.
+- **연결 하기 위해서는 CodeBuild 서비스 역할에** `codebuild:UseConnection` 권한이 포함되어야 한다.
+
+### 해결 과정
+
+![image.png](attachment:823ff2f9-39ae-4bb2-904a-680928d78bf2:b784544c-7982-4487-ae9c-bf97cc87f6fd.png)
+
+![image.png](attachment:45e8b0b2-43d5-48c0-9c92-66cd009e467b:image.png)
+
+Json을 통해 아래 코드를 입력한다.
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {   
+            "Effect": "Allow",
+            "Resource": [
+                "arn:aws:logs:ap-northeast-2:329984431650:log-group:/aws/codebuild/bWAPP-CodeBuild",
+                "arn:aws:logs:ap-northeast-2:329984431650:log-group:/aws/codebuild/bWAPP-CodeBuild:*"
+            ],
+            "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "codebuild:CreateReportGroup",
+                "codebuild:CreateReport",
+                "codebuild:UpdateReport",
+                "codebuild:BatchPutTestCases",
+                "codebuild:BatchPutCodeCoverages"
+            ],
+            "Resource": [
+                "arn:aws:codebuild:ap-northeast-2:329984431650:report-group/bWAPP-CodeBuild-*"
+            ]
+        }
+    ]
+}
+```
+
+![image.png](attachment:295c9968-e782-4ff1-8f83-c6953a5d1032:image.png)
+
+- 생성한 정책을 연결하기 위한 역할 생성
+
+![image.png](attachment:d94bdb7e-d50f-430b-906a-a63695ea1a83:7d9e0f5f-653c-4b3a-997b-9e8bf3a01772.png)
+
+![image.png](attachment:6e3e6980-c5b2-4e2f-9843-22c82d275006:3ac2de82-4836-4611-8a55-d4fe01718cc9.png)
+
+![image.png](attachment:e7e9a8d1-c6ad-40fb-a979-f6f7ee497cee:339da206-bdb6-41b8-b4e7-d54b85f2190b.png)
+
+![image.png](attachment:1f951335-d73c-43ee-8113-f71d74f0ef7f:8a5a00f0-9b01-44c3-8d23-2dce6e3945d7.png)
+
+- 실제 이름은 **bWAPP-CodeBuild-service-Role로 생성하였습니다.**
+
+### 빌드 실패
+
+### 두 번째 오류 - 빌드 실패
+
+```yaml
+[Container] 2025/11/12 10:51:07.324548 Running on CodeBuild On-demand
+[Container] 2025/11/12 10:51:07.324562 Waiting for agent ping
+[Container] 2025/11/12 10:51:07.727051 Waiting for DOWNLOAD_SOURCE
+[Container] 2025/11/12 10:51:11.507043 Phase is DOWNLOAD_SOURCE
+[Container] 2025/11/12 10:51:11.510562 CODEBUILD_SRC_DIR=/codebuild/output/src1484004589/src/github.com/Start-Cloud-Team/bWAPP
+[Container] 2025/11/12 10:51:11.511142 YAML location is /codebuild/output/src1484004589/src/github.com/Start-Cloud-Team/bWAPP/buildspec.yml
+[Container] 2025/11/12 10:51:11.513425 Setting HTTP client timeout to higher timeout for Github and GitHub Enterprise sources
+[Container] 2025/11/12 10:51:11.513549 Processing environment variables
+[Container] 2025/11/12 10:51:12.053367 No runtime version selected in buildspec.
+[Container] 2025/11/12 10:51:12.093775 Moving to directory /codebuild/output/src1484004589/src/github.com/Start-Cloud-Team/bWAPP
+[Container] 2025/11/12 10:51:12.093816 Cache is not defined in the buildspec
+[Container] 2025/11/12 10:51:12.253044 Skip cache due to: no paths specified to be cached
+[Container] 2025/11/12 10:51:12.253351 Registering with agent
+[Container] 2025/11/12 10:51:12.365501 Phases found in YAML: 3
+[Container] 2025/11/12 10:51:12.365528  POST_BUILD: 8 commands
+[Container] 2025/11/12 10:51:12.365536  PRE_BUILD: 2 commands
+[Container] 2025/11/12 10:51:12.365541  BUILD: 3 commands
+[Container] 2025/11/12 10:51:12.365908 Phase complete: DOWNLOAD_SOURCE State: SUCCEEDED
+[Container] 2025/11/12 10:51:12.365922 Phase context status code:  Message: 
+[Container] 2025/11/12 10:51:12.670355 Entering phase INSTALL
+[Container] 2025/11/12 10:51:12.788289 Phase complete: INSTALL State: SUCCEEDED
+[Container] 2025/11/12 10:51:12.788315 Phase context status code:  Message: 
+[Container] 2025/11/12 10:51:12.825177 Entering phase PRE_BUILD
+[Container] 2025/11/12 10:51:12.976828 Running command echo "=== PRE_BUILD ==="
+=== PRE_BUILD ===
+
+[Container] 2025/11/12 10:51:12.983262 Running command aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+
+An error occurred (AccessDeniedException) when calling the GetAuthorizationToken operation: User: arn:aws:sts::329984431650:assumed-role/codebuild-bWAPP-CodeBuild-service-role/AWSCodeBuild-b519fca5-dc53-457f-813e-e9fdd178d432 is not authorized to perform: ecr:GetAuthorizationToken on resource: * because no identity-based policy allows the ecr:GetAuthorizationToken action
+Error: Cannot perform an interactive login from a non TTY device
+
+**[Container] 2025/11/12 10:51:24.609847 Command did not exit successfully aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com exit status 1
+[Container] 2025/11/12 10:51:24.612722 Phase complete: PRE_BUILD State: FAILED
+[Container] 2025/11/12 10:51:24.612740 Phase context status code: COMMAND_EXECUTION_ERROR Message: Error while executing command: aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com. Reason: exit status 1**
+
+```
+
+**CodeBuild가 ECR에 로그인하려고 하는데 권한이 없어서 실패**
+
+→ 도커 로그인이 안됨
+
+**bWAPP-CodeBuild-service-Role에 ECR 접근 권한이 존재하지 않기 때문**
+
+- ECR에 접근 가능해야 도커 이미지 푸시 가능
+
+### 해결 과정
+
+아까 전 만들어둔 정책에 아래 코드를 추가한다.
+
+```json
+
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ecr:GetAuthorizationToken",
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:PutImage",
+                "ecr:InitiateLayerUpload",
+                "ecr:UploadLayerPart",
+                "ecr:CompleteLayerUpload"
+            ],
+            "Resource": "*"
+        }
+```
+
+### 권한 설정 후 편집하면서 생긴 오류
+
+```yaml
+CodeBuild is not authorized to perform: sts:AssumeRole on service role. Please verify that: 1) The provided service role exists, 2) The role name is case-sensitive and matches exactly, and 3) The role has the necessary trust policy configured.
+```
+
+이 오류는 역할 신뢰 관계로 인한 문제이다.
+
+CodeBuild가 `sts:AssumeRole`을 통해 **서비스 역할(CodeBuild role)**을 사용할 수 있도록 허용되어 있지 않아서 발생
+
+### AWS STS(AWS Security Token Service)?
+
+- AWS에서 보안 토큰을 생성하는 서비스
+
+AWS STS를 사용하면 AWS IAM 사용자나 AWS 외부 자격 증명을 사용하여 액세스 권한을 부여할 수 있다.
+
+### Assume Role?
+
+- AWS IAM에서 Assume Role을 사용하면 IAM 사용자 또는 AWS 외부 자격 증명으로 다른 AWS 계정 혹은 리소스에 액세스 할 수 있다.
+
+### AWS STS와 Assume Role를 함께 사용하는 경우?
+
+AWS STS를 사용하여 일시적인 자격 증명을 생성 → Assume Role을 호출하고, 생성된 일시적 자격 증명을 사용하여 IAM 사용자나 외부 자격 증명으로 다른 AWS 계정 또는 리소스에 액세스
+
+### 해결 과정
+
+![image.png](attachment:94d39019-831f-495a-ade4-2638a3b656ba:image.png)
+
+![image.png](attachment:342f9596-2cb3-4563-bc38-471bad2d8e91:image.png)
+
+![image.png](attachment:3ed84dc1-4929-4d0b-a4f0-17ecc52d76bc:image.png)
+
+아래와 같이 **CodeBuild가 이 역할을 맡을 수 있도록 설정**:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "codebuild.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+
+```
+
+### 빌드 실패 - 2
+
+```yaml
+[Container] 2025/11/12 13:48:31.186959 Running on CodeBuild On-demand
+[Container] 2025/11/12 13:48:31.186971 Waiting for agent ping
+[Container] 2025/11/12 13:48:31.488933 Waiting for DOWNLOAD_SOURCE
+Retrieving Secrets Manager Token Failed with Error: Project service role does not have access to retrieve secret arn:aws:secretsmanager:ap-northeast-2:329984431650:secret:JHJ-2-ouLYGG
+```
+
+**CodeBuild 서비스 역할에 Secrets Manager 접근 권한이 없어서** 발생
+
+### Secrets Manager
+
+- AWS에서 제공하는 보안 자격 증명 및 비밀 관리 서비스
+
+민감한 정보를 안전하게 저장 및 관리할 수 있도록 해준다.
+
+### 해결 과정
+
+CodeBuild 역할에 다음과 같은 권한을 추가하였다.
+
+```json
+{
+    "Effect": "Allow",
+    "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+    ],
+    "Resource": "arn:aws:secretsmanager:ap-northeast-2:329984431650:secret:JHJ-2-ouLYGG"
+}
+
+```
